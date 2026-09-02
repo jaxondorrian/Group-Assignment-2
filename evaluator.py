@@ -233,3 +233,59 @@ def do_line(s):
         d['error'] = "calculation failed: " + str(err)
 
     return d
+
+def evaluate_file(input_path: str) -> list[dict]:
+    path = input_path
+    # read the input file
+    try:
+        with open(path, 'r') as f:
+            lines = f.read().splitlines()
+    except OSError as e:
+        print("Could not read the file:", e)
+        return []
+
+    ans = []
+    out=[]
+
+
+    for s in lines:
+        d=do_line(s)
+        ans.append(d)
+        r = 'ERROR' if d['result'] == 'ERROR' else num(d['result'])
+        block = 'Input: ' + d['input'] + '\n'
+        block += 'Tree: ' + str(d['tree']) + '\n'
+        block = block + 'Tokens: ' + str(d['tokens']) + '\n'
+        block += 'Result: ' + r
+
+        out.append(block)
+
+    folder = os.path.dirname(os.path.abspath(path))
+    out_file = os.path.join(folder, 'output.txt')
+
+
+    try:
+        with open(out_file, 'w') as f:
+            f.write('\n\n'.join(out))
+            if out: f.write('\n')
+    except OSError as err:
+        print("Could not write output:", err)
+
+    return ans
+
+# run the program
+if __name__ == '__main__':
+    path = sys.argv[1] if len(sys.argv) > 1 else 'input.txt'
+
+    if not os.path.isfile(path):
+        print("Could not find input file:", path)
+        print("Put an 'input.txt' next to evaluator.py, or pass a path:")
+        print('    python evaluator.py path/to/input.txt')
+        sys.exit(1)
+
+    ans = evaluate_file(path)
+    out_file = os.path.join(os.path.dirname(os.path.abspath(path)), 'output.txt') # output is beside input
+    print("Processed " + str(len(ans)) + " expression(s) from '" + path + "'.")
+    print("Wrote results to '" + out_file + "'.\n")
+
+    for x in ans:
+        print(x)
