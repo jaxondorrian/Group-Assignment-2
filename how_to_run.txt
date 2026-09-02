@@ -1,0 +1,26 @@
+How to run evaluator.py
+
+Step1 1: Save the files
+Put "evaluator.py" into a folder on your computer
+
+Step 2: Create input.txt
+In the same folder, create a text file named exactly "input.txt".
+Put one mathematical expression per line, for example:
+    3 + 5
+    2 + 3 * 4
+    -(3 + 4)
+
+Step 3: Open a terminal in that folder
+Open the folder in file explorer, click the address bar, type "cmd", and press Enter.
+
+Step 4: Run the script
+Type the following and press Enter:
+
+    python evaluator.py input.txt
+
+Step: Check the result
+You should see a message like: Processed 7 expression(s) from 'input.txt'. Wrote results to '/your/folder/output.txt'.
+
+A new file called "output.txt" will now appear in the same folder.
+It contains an input / tree / tokens / result block for each
+expression you listed in input.txt.
