@@ -144,3 +144,92 @@ def mul(tokens):
             break
 
     return x
+
+def parse(tokens):
+    global pos
+    pos = 0
+    x = add(tokens)
+    if see(tokens)[0] != 'END':
+        raise ValueError("extra text after expression")
+    return x
+
+
+def calc(x):
+    if x[0] == 'num':
+        return x[1]
+
+    if x[0] == 'neg':
+        return -calc(x[1])
+
+    first = calc(x[2])
+    second = calc(x[3])
+    op = x[1]
+
+    if op == '+':
+        return first + second
+    elif op == '-':
+        return first - second
+    elif op == '*':
+        return first * second
+    elif op == '/':
+        if second == 0:
+            raise ZeroDivisionError("cannot divide by zero")
+        return first / second
+    elif op == '%':
+        if second == 0:
+            raise ZeroDivisionError("cannot divide by zero")
+        return first % second
+    elif op == '^':
+        value = first ** second
+        if isinstance(value, complex):
+            raise ValueError("result is not a real number")
+        return value
+
+    raise ValueError("unknown operator")
+
+
+def tree(x):
+    if x[0] == 'num':
+        return num(x[1])
+    if x[0] == 'neg':
+        return '(neg ' + tree(x[1]) + ')'
+    return '(' + x[1] + ' ' + tree(x[2]) + ' ' + tree(x[3]) + ')'
+
+#process one expression
+def do_line(s):
+    # deal with one line
+    d = {'input': s, 'tree': None, 'tokens': None, 'result': None, 'error': None}
+
+    try:
+        t = get_tokens(s)
+        d['tokens'] = show(t)
+        x = parse(t)
+        d['tree'] = tree(x)
+    except ValueError as err:
+        d['error'] = str(err)
+        if d['tokens'] is None:
+            d['tokens'] = 'ERROR'
+        d['tree'] = 'ERROR'
+        d['result'] = 'ERROR'
+        return d
+    except Exception as err:
+        d['error'] = 'unexpected parsing error: ' + str(err)
+        d['tokens'] = d['tokens'] or 'ERROR'
+        d['tree'] = 'ERROR'
+        d['result'] = 'ERROR'
+        return d
+
+    # calculate after parsing
+    try:
+        d['result'] = float(calc(x))
+    except ZeroDivisionError as err:
+        d['result'] = 'ERROR'
+        d['error'] = str(err)
+    except ValueError as err:
+        d['result'] = 'ERROR'
+        d['error'] = str(err)
+    except Exception as err:
+        d['result'] = 'ERROR'
+        d['error'] = "calculation failed: " + str(err)
+
+    return d
